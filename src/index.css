@@ -1,0 +1,309 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0b0d10;
+  color: #e7eaee;
+  font-family: "Orbitron", sans-serif;
+}
+
+/* === LOGIN GAMER === */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  background: rgba(15, 20, 30, 0.9);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px #00f7ff, 0 0 50px #8a2be2;
+  text-align: center;
+  animation: glowBox 2s infinite alternate;
+}
+
+.login-box h2 {
+  color: #00f7ff;
+  text-shadow: 0 0 10px #00f7ff, 0 0 20px #8a2be2;
+  margin-bottom: 20px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  background: #11151a;
+  color: #e7eaee;
+  box-shadow: 0 0 10px #00f7ff;
+  transition: 0.3s;
+}
+
+.login-box input:focus {
+  box-shadow: 0 0 15px #8a2be2, 0 0 25px #00f7ff;
+}
+
+.login-box button {
+  margin-top: 10px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #00f7ff, #8a2be2);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  box-shadow: 0 0 20px #00f7ff, 0 0 30px #8a2be2;
+}
+
+@keyframes glowBox {
+  from {
+    box-shadow: 0 0 15px #00f7ff, 0 0 30px #8a2be2;
+  }
+  to {
+    box-shadow: 0 0 25px #8a2be2, 0 0 50px #00f7ff;
+  }
+}
+
+/* === DASHBOARD GAMER === */
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 2px solid #2a2f36;
+  background: rgba(20, 25, 35, 0.8);
+  box-shadow: 0 0 20px #00f7ff;
+  border-radius: 12px;
+}
+
+.topbar h1 {
+  font-size: 22px;
+  margin: 0;
+  color: #00f7ff;
+  text-shadow: 0 0 10px #00f7ff, 0 0 20px #8a2be2;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  opacity: .85;
+}
+
+.btn {
+  background: linear-gradient(90deg, #00f7ff, #8a2be2);
+  color: white;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.btn:hover {
+  box-shadow: 0 0 15px #00f7ff, 0 0 25px #8a2be2;
+}
+
+.btn.danger {
+  background: linear-gradient(90deg, #d83a3a, #ff6b6b);
+}
+
+.add input {
+  flex: 1;
+  border: 1px solid #2a2f36;
+  background: #11151a;
+  color: #e7eaee;
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #00f7ff;
+}
+
+.chip {
+  background: #141922;
+  border: 1px solid #2a2f36;
+  color: #c7cfdb;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.chip.active {
+  border-color: #00f7ff;
+  color: #fff;
+  box-shadow: 0 0 10px #00f7ff;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: #0e1217;
+  border: 1px solid #1b2027;
+  padding: 12px;
+  border-radius: 12px;
+  transition: 0.3s;
+}
+
+.item:hover {
+  box-shadow: 0 0 10px #8a2be2;
+}
+
+.item.done .title {
+  text-decoration: line-through;
+  opacity: .6;
+}
+
+/* === REGISTER GAMER === */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #0b0d10;
+}
+
+.register-box {
+  background: rgba(15, 20, 30, 0.9);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px #00f7ff, 0 0 50px #8a2be2;
+  text-align: center;
+  animation: glowBox 2s infinite alternate;
+  width: 100%;
+  max-width: 400px;
+}
+
+.register-box h2 {
+  color: #00f7ff;
+  text-shadow: 0 0 10px #00f7ff, 0 0 20px #8a2be2;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.register-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  background: #11151a;
+  color: #e7eaee;
+  box-shadow: 0 0 10px #00f7ff;
+  transition: 0.3s;
+  font-family: "Orbitron", sans-serif;
+}
+
+.register-box input:focus {
+  box-shadow: 0 0 15px #8a2be2, 0 0 25px #00f7ff;
+}
+
+.register-box button {
+  margin-top: 15px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #00f7ff, #8a2be2);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.3s;
+  font-family: "Orbitron", sans-serif;
+  font-weight: bold;
+}
+
+.register-box button:hover {
+  box-shadow: 0 0 20px #00f7ff, 0 0 30px #8a2be2;
+  transform: translateY(-2px);
+}
+
+.register-link {
+  margin-top: 20px;
+  color: #c7cfdb;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #00f7ff;
+  text-decoration: none;
+  transition: 0.3s;
+  text-shadow: 0 0 5px #00f7ff;
+}
+
+.register-link a:hover {
+  color: #8a2be2;
+  text-shadow: 0 0 5px #8a2be2;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 15px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+.success-message {
+  color: #00f7ff;
+  background: rgba(0, 247, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 15px;
+  border: 1px solid rgba(0, 247, 255, 0.3);
+  text-shadow: 0 0 5px rgba(0, 247, 255, 0.5);
+}
+
+@keyframes glowBox {
+  from {
+    box-shadow: 0 0 15px #00f7ff, 0 0 30px #8a2be2;
+  }
+  to {
+    box-shadow: 0 0 25px #8a2be2, 0 0 50px #00f7ff;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .register-box {
+    padding: 30px 20px;
+  }
+  
+  .register-box h2 {
+    font-size: 20px;
+  }
+}
