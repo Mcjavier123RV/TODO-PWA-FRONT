@@ -306,4 +306,63 @@ body {
   .register-box h2 {
     font-size: 20px;
   }
+  /* === Topbar y logout === */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(20, 20, 35, 0.9);
+  border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.2);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff4c4c, #ff1f1f);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 0 10px rgba(255, 80, 80, 0.3);
+}
+
+.logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 80, 80, 0.5);
+}
+
+/* === Indicador de conexión === */
+.estado-conexion {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: 0.3s;
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+}
+
+.estado-conexion.online {
+  background: rgba(0, 255, 128, 0.15);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+.estado-conexion.offline {
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff4c4c;
+  border: 1px solid #ff4c4c;
+  text-shadow: 0 0 8px #ff4c4c;
+}
+
 }

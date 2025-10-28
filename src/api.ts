@@ -13,14 +13,14 @@ setAuth(localStorage.getItem('token'));
 
 //si el token expira o es inválido, eliminarlo y redirigir al login
 
-api.interceptors.response.use(
+ api.interceptors.response.use(
     (r) => r,
     (err) => {
         if (err.response?.status === 401) {
             localStorage.removeItem('token');
             setAuth(null);
             window.location.href = '/login';
-    }
+     }
         return Promise.reject(err);
-}
-);
+ }
+ );

@@ -10,8 +10,10 @@ export default function Login() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    console.log("1. Intentando iniciar sesión...");
     try {
       const { data } = await api.post("/auth/login", { email, password });
+      console.log("2. Login exitoso. Redirigiendo...");
       localStorage.setItem("token", data.token);
       setAuth(data.token);
       location.href = "/Dashboard";

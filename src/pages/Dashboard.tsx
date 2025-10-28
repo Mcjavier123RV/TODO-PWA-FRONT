@@ -1,7 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { api, setAuth } from "../api";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import {
+  cacheTasks,
+  getAllTasksLocal,
+  putTaskLocal,
+  removeTaskLocal,
+  queue,
+  getOutbox,
+  clearOutbox,
+  setMapping,
+  getMapping,
+} from "../offline/db";
 
-//modelo de una tarea alineado al backend
+
 type Task = {
   _id: string;
   title: string;
@@ -12,16 +25,16 @@ type Task = {
   deleted?: boolean;
 };
 
-// Normaliza lo que venga del backend a nuestro shape
+// === Normaliza datos del backend ===
 function normalizeTask(x: any): Task {
   return {
     _id: String(x?._id ?? x?.id),
     title: String(x?.title ?? "(sin título)"),
     descrption: x?.descrption ?? "",
     status:
-    x?.status === "Completada" ||
-    x?.status === "En Progreso" ||
-    x?.status === "Pendiente"
+      x?.status === "Completada" ||
+      x?.status === "En Progreso" ||
+      x?.status === "Pendiente"
         ? x.status
         : "Pendiente",
     clienteId: x?.clienteId,
@@ -39,48 +52,157 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
 
+  const isOnline = useOnlineStatus();
+  const navigate = useNavigate();
+
+
+  // === Carga inicial ===
   useEffect(() => {
     setAuth(localStorage.getItem("token"));
     loadTasks();
+
+    // Sincroniza automáticamente al volver online
+    window.addEventListener("online", syncNow);
+    return () => window.removeEventListener("online", syncNow);
   }, []);
 
+  // === Cargar tareas (online / offline) ===
   async function loadTasks() {
     setLoading(true);
     try {
-      const { data } = await api.get("/tasks");
-      // Acepta varios formatos: [], {items: []}, {tasks: []}, {data: []}
-      const raw = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
-      setTasks(raw.map(normalizeTask));
+      if (navigator.onLine) {
+        const { data } = await api.get("/tasks");
+        const raw = Array.isArray(data?.items)
+          ? data.items
+          : Array.isArray(data)
+          ? data
+          : [];
+        const list = raw.map(normalizeTask);
+        setTasks(list);
+        await cacheTasks(list); // guarda en IndexedDB
+      } else {
+        // modo offline
+        const cached = await getAllTasksLocal();
+        setTasks(cached);
+      }
     } finally {
       setLoading(false);
     }
   }
 
+  // === Sincronización offline → online ===
+  async function syncNow() {
+    const ops = (await getOutbox()).sort((a, b) => a.ts - b.ts);
+    if (!ops.length) return;
+
+    for (const op of ops) {
+      try {
+        if (op.op === "create") {
+          const { data } = await api.post("/tasks", op.data);
+          const serverTask = normalizeTask(data?.task ?? data);
+          await setMapping(op.clienteId, serverTask._id);
+          await putTaskLocal(serverTask);
+        } else if (op.op === "update") {
+          const id = (await getMapping(op.clienteId)) ?? op.serverId;
+          if (id) {
+            await api.put(`/tasks/${id}`, op.data);
+            await putTaskLocal({ ...op.data, _id: id });
+          }
+        } else if (op.op === "delete") {
+          const id = (await getMapping(op.clienteId)) ?? op.serverId;
+          if (id) {
+            await api.delete(`/tasks/${id}`);
+            await removeTaskLocal(id);
+          }
+        }
+      } catch (err) {
+        console.warn("Error al sincronizar:", err);
+      }
+    }
+
+    await clearOutbox();
+    await loadTasks();
+  }
+
+  // === Agregar tarea ===
   async function addTask(e: React.FormEvent) {
     e.preventDefault();
     const t = title.trim();
     if (!t) return;
-    const { data } = await api.post("/tasks", { title: t });
 
-    const created = normalizeTask(data?.task ?? data);
-    setTasks((prev) => [created, ...prev]);
+    const clienteId = crypto.randomUUID();
+    const newTask: Task = {
+      _id: clienteId,
+      title: t,
+      status: "Pendiente",
+      clienteId,
+      createdAt: new Date().toISOString(),
+    };
+
+    setTasks((prev) => [newTask, ...prev]);
+    await putTaskLocal(newTask);
     setTitle("");
+
+    if (navigator.onLine) {
+      try {
+        const { data } = await api.post("/tasks", { title: t });
+        const serverTask = normalizeTask(data?.task ?? data);
+        await setMapping(clienteId, serverTask._id);
+        await putTaskLocal(serverTask);
+      } catch {
+        await queue({
+          id: crypto.randomUUID(),
+          op: "create",
+          clienteId,
+          data: newTask,
+          ts: Date.now(),
+        });
+      }
+    } else {
+      await queue({
+        id: crypto.randomUUID(),
+        op: "create",
+        clienteId,
+        data: newTask,
+        ts: Date.now(),
+      });
+    }
   }
 
-  //togle status
+  // === Cambiar estado ===
   async function toggleTask(task: Task) {
     const newStatus = task.status === "Completada" ? "Pendiente" : "Completada";
     const updated = { ...task, status: newStatus };
     setTasks((prev) => prev.map((x) => (x._id === task._id ? updated : x)));
-    
-    try {
-      await api.put(`/tasks/${task._id}`, { status: newStatus });
-    } catch {
-      // rollback
-      setTasks((prev) => prev.map((x) => (x._id === task._id ? task : x)));
+    await putTaskLocal(updated);
+
+    const opData = { status: newStatus };
+
+    if (navigator.onLine) {
+      try {
+        const id = (await getMapping(task.clienteId ?? "")) ?? task._id;
+        await api.put(`/tasks/${id}`, opData);
+      } catch {
+        await queue({
+          id: crypto.randomUUID(),
+          op: "update",
+          clienteId: task.clienteId ?? "",
+          data: updated,
+          ts: Date.now(),
+        });
+      }
+    } else {
+      await queue({
+        id: crypto.randomUUID(),
+        op: "update",
+        clienteId: task.clienteId ?? "",
+        data: updated,
+        ts: Date.now(),
+      });
     }
   }
 
+  // === Editar tarea ===
   function startEdit(task: Task) {
     setEditingId(task._id);
     setEditingTitle(task.title);
@@ -89,32 +211,74 @@ export default function Dashboard() {
   async function saveEdit(taskId: string) {
     const newTitle = editingTitle.trim();
     if (!newTitle) return;
+
     const before = tasks.find((t) => t._id === taskId);
-    setTasks((prev) => prev.map((t) => (t._id === taskId ? { ...t, title: newTitle } : t)));
+    const updated = { ...before!, title: newTitle };
+
+    setTasks((prev) => prev.map((t) => (t._id === taskId ? updated : t)));
     setEditingId(null);
-    try {
-      await api.put(`/tasks/${taskId}`, { title: newTitle });
-    } catch {
-      if (before) setTasks((prev) => prev.map((t) => (t._id === taskId ? before : t)));
+    await putTaskLocal(updated);
+
+    if (navigator.onLine) {
+      try {
+        const id = (await getMapping(updated.clienteId ?? "")) ?? updated._id;
+        await api.put(`/tasks/${id}`, { title: newTitle });
+      } catch {
+        await queue({
+          id: crypto.randomUUID(),
+          op: "update",
+          clienteId: updated.clienteId ?? "",
+          data: updated,
+          ts: Date.now(),
+        });
+      }
+    } else {
+      await queue({
+        id: crypto.randomUUID(),
+        op: "update",
+        clienteId: updated.clienteId ?? "",
+        data: updated,
+        ts: Date.now(),
+      });
     }
   }
 
+  // === Eliminar tarea ===
   async function removeTask(taskId: string) {
-    const backup = tasks;
+    const task = tasks.find((t) => t._id === taskId);
     setTasks((prev) => prev.filter((t) => t._id !== taskId));
-    try {
-      await api.delete(`/tasks/${taskId}`);
-    } catch {
-      setTasks(backup); // rollback
+    await removeTaskLocal(taskId);
+
+    if (navigator.onLine) {
+      try {
+        const id = (await getMapping(task?.clienteId ?? "")) ?? taskId;
+        await api.delete(`/tasks/${id}`);
+      } catch {
+        await queue({
+          id: crypto.randomUUID(),
+          op: "delete",
+          clienteId: task?.clienteId ?? "",
+          ts: Date.now(),
+        });
+      }
+    } else {
+      await queue({
+        id: crypto.randomUUID(),
+        op: "delete",
+        clienteId: task?.clienteId ?? "",
+        ts: Date.now(),
+      });
     }
   }
 
+  // === Logout ===
   function logout() {
     localStorage.removeItem("token");
     setAuth(null);
-    window.location.href = "/"; // Login
+    navigate("/login", { replace: true });
   }
 
+  // === Filtros y estadísticas ===
   const filtered = useMemo(() => {
     let list = tasks;
     if (search.trim()) {
@@ -132,6 +296,7 @@ export default function Dashboard() {
     return { total, done, pending: total - done };
   }, [tasks]);
 
+  // === UI ===
   return (
     <div className="wrap">
       <header className="topbar">
@@ -142,8 +307,18 @@ export default function Dashboard() {
           <span>Hechas: {stats.done}</span>
           <span>Pendientes: {stats.pending}</span>
         </div>
-        <button className="btn danger" onClick={logout}>Salir</button>
+        
+        {/* 👇 Indicador de conexión */}
+        <div className={`estado-conexion ${isOnline ? "online" : "offline"}`}>
+          {isOnline ? "🟢 Online" : "🔴 Offline"}
+        </div>
+        
+        <button className="btn danger" onClick={logout}>
+          Salir
+        </button>
       </header>
+      
+
 
       <main>
         <form className="add" onSubmit={addTask}>
@@ -195,7 +370,7 @@ export default function Dashboard() {
           <ul className="list">
             {filtered.map((t, idx) => (
               <li
-                key={`${t._id || t.title}-${idx}`}  // key robusta
+                key={`${t._id || t.title}-${idx}`}
                 className={t.status === "Completada" ? "item done" : "item"}
               >
                 <label className="check">
