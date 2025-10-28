@@ -1,5 +1,5 @@
-import { openDB } from "idb";
-import type { IDBPDatabase, DBSchema as IDBDBSchema } from "idb";
+import { openDB, type IDBPDatabase } from "idb";
+
 
 type DBSchema = {
   tasks: { key: string; value: any };

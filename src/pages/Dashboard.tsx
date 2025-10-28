@@ -173,7 +173,9 @@ export default function Dashboard() {
   async function toggleTask(task: Task) {
     const newStatus = task.status === "Completada" ? "Pendiente" : "Completada";
     const updated = { ...task, status: newStatus };
-    setTasks((prev) => prev.map((x) => (x._id === task._id ? updated : x)));
+    setTasks((prev) =>
+    prev.map((x) => (x._id === task._id ? (updated as Task) : x))
+  );
     await putTaskLocal(updated);
 
     const opData = { status: newStatus };
