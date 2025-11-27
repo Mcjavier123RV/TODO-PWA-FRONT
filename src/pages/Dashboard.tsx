@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { api, setAuth } from "../api";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
@@ -402,12 +403,12 @@ export default function Dashboard() {
         </div>
 
         <div className={`estado-conexion ${isOnline ? "online" : "offline"}`}>
-          {isOnline ? "🟢 Online" : "🔴 Offline"}
+          {isOnline ? "🟢 " : "🔴 "}
         </div>
 
-        <button className="btn danger" onClick={logout}>
-          Salir
-        </button>
+       <button className="btn danger" onClick={logout}>
+  <FiLogOut size={18} />
+</button>
       </header>
 
       <main>

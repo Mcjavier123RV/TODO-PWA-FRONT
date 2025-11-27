@@ -633,4 +633,93 @@ body {
 }
 
 }
+/* === MOBILE FIXES === */
+@media (max-width: 600px) {
+
+    /* --- HEADER --- */
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .header-container h1 {
+        width: 100%;
+        text-align: left;
+        font-size: 24px;
+        margin-bottom: 4px;
+        line-height: 1.1;
+    }
+
+    /* stats debajo del título */
+    .stats {
+        width: 100%;
+        justify-content: flex-start;
+        font-size: 13px;
+        gap: 15px;
+        margin-bottom: 4px;
+    }
+
+    /* Status + botón salir alineados horizontalmente */
+    .header-controls {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn.danger {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+
+    /* --- CARDS / ITEMS --- */
+    .item {
+        grid-template-columns: 32px 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 6px 10px;
+        padding: 14px;
+    }
+
+    /* Número o checkbox */
+    .task-number,
+    .item > input[type="checkbox"] {
+        grid-row: span 2;
+        align-self: flex-start;
+    }
+
+    /* Título */
+    .title {
+        grid-column: 2 / 3;
+        font-size: 15px;
+    }
+
+    /* Descripción */
+    .task-desc {
+        grid-column: 2 / 3;
+        font-size: 13px;
+    }
+
+    /* Controles */
+    .task-controls,
+    .item > div:last-child {
+        grid-column: 1 / 3;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .task-controls select,
+    .item .action-btn {
+        flex: 1 1 120px;
+        min-width: calc(50% - 10px);
+    }
+
+}
+
+
 }
