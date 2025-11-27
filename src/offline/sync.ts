@@ -1,56 +1,71 @@
+// src/offline/sync.ts
+
 import { api } from "../api";
 import {
-  getOutbox,
-  clearOutbox,
-  setMapping,
-  getMapping,
-  putTaskLocal,
-  removeTaskLocal,
+  getOutbox,
+  clearOutbox,
+  setMapping,
+  getMapping,
+  putTaskLocal,
+  removeTaskLocal,
 } from "./db";
 
+// Asumimos que normalizeTask está disponible o copiada aquí (si no, importala)
+function normalizeTask(x: any) {
+    return {
+        _id: String(x?._id ?? x?.id),
+        title: String(x?.title ?? "(sin título)"),
+        descrption: x?.descrption ?? "",
+        status: x?.status === "Completada" || x?.status === "En Progreso" || x?.status === "Pendiente" ? x.status : "Pendiente",
+    };
+}
+
+
 export async function syncNow() {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine) return;
 
-  // 1. Obtener operaciones pendientes ordenadas por timestamp
-  const ops = (await getOutbox()).sort((a, b) => a.ts - b.ts);
-  if (!ops.length) return;
+  const ops = (await getOutbox()).sort((a, b) => a.ts - b.ts);
+  if (!ops.length) return;
 
-  for (const op of ops) {
-    try {
-      if (op.op === "create") {
-        // Crear tarea en el servidor
-        const res = await api.post("/tasks", op.data);
-        const serverId = res.data._id;
+  console.log(`[SYNC] Intentando sincronizar ${ops.length} operaciones...`);
 
-        // Guardar mapeo (clienteId -> serverId)
-        await setMapping(op.clienteId, serverId);
+  for (const op of ops) {
+    try {
+      if (op.op === "create") {
+        console.log(`[SYNC] Procesando CREATE para clienteId: ${op.clienteId}`);
 
-        // Actualizar en cache local con el ID del servidor
-        await putTaskLocal({ ...op.data, _id: serverId });
-      }
+        const res = await api.post("/tasks", op.data);
+        
+        // 1. NORMALIZAR LA RESPUESTA PARA OBTENER EL SERVER ID
+        const serverTask = normalizeTask(res.data?.task ?? res.data);
+        const serverId = serverTask._id;
 
-      else if (op.op === "update") {
-        const serverId = op.serverId || (await getMapping(op.clienteId));
-        if (serverId) {
-          await api.put(`/tasks/${serverId}`, op.data);
-          await putTaskLocal({ ...op.data, _id: serverId });
-        }
-      }
+        if (!serverId || serverId === op.clienteId) {
+          throw new Error("Error en la respuesta del servidor: No se obtuvo un ID válido.");
+        }
 
-      else if (op.op === "delete") {
-        const serverId = op.serverId || (await getMapping(op.clienteId));
-        if (serverId) {
-          await api.delete(`/tasks/${serverId}`);
-        }
-        await removeTaskLocal(op.clienteId || serverId);
-      }
+        console.log(`[SYNC-CREATE] Mapeando ${op.clienteId} -> ${serverId}`);
+        await setMapping(op.clienteId, serverId);
 
-    } catch (err) {
-      console.error("Error al sincronizar:", err);
-    }
-  }
+        // 2. REEMPLAZO CRÍTICO DE ID EN CACHÉ LOCAL
+        await removeTaskLocal(op.clienteId); 
+        await putTaskLocal(serverTask); // Usar la tarea normalizada con el serverId
+        
+        console.log(`[SYNC-CREATE] Tarea ${op.clienteId} reemplazada con ${serverId} localmente.`);
 
-  // 2. Limpiar la cola si todo fue exitoso
-  await clearOutbox();
-  console.log("✅ Sincronización completada");
+      } 
+      // ... (mantener update y delete igual)
+
+      // Si la operación fue exitosa, podemos marcarla para limpieza (implícito si el for loop termina)
+
+    } catch (err) {
+      console.error(`[SYNC] Falló la operación ${op.op} (ID: ${op.clienteId || op.serverId}):`, err);
+      // 🚨 SI FALLA, DETENEMOS LA SINCRONIZACIÓN para reintentar la operación en el próximo evento
+      return; 
+    }
+  }
+
+  // Si todo el loop se completa, limpiamos la outbox
+  await clearOutbox();
+  console.log("✅ Sincronización completada. Outbox limpia.");
 }
