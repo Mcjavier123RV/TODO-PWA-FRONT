@@ -5,7 +5,6 @@ import {
   getOutbox,
   clearOutbox,
   setMapping,
-  getMapping,
   putTaskLocal,
   removeTaskLocal,
 } from "./db";

@@ -8,8 +8,6 @@ import {
   putTaskLocal,
   removeTaskLocal,
   queue,
-  getOutbox,
-  clearOutbox,
   setMapping,
   getMapping,
 } from "../offline/db";
@@ -391,12 +389,7 @@ export default function Dashboard() {
     return { total, done, pending: total - done };
   }, [tasks]);
 
-  function statusLabel(s: Task["status"]) {
-    if (s === "Pendiente") return "Pendiente";
-    if (s === "En Progreso") return "En Progreso";
-    return "Completada";
-  }
-
+  
   return (
     <div className="wrap">
       <header className="topbar" role="banner">
