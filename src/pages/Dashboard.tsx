@@ -394,7 +394,7 @@ export default function Dashboard() {
   return (
     <div className="wrap">
       <header className="topbar" role="banner">
-        <h1>To-Do PWA</h1>
+        <h1>Tareas</h1>
         <div className="spacer" />
         <div className="stats">
           <span>Total: {stats.total}</span>
