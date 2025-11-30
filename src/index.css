@@ -165,33 +165,29 @@ body {
 /* --- Glassmorphism y animaciones en las tarjetas de tarea (.item) --- */
 
 .item {
-    /* Mantenemos el grid, pero cambiamos el fondo a semi-transparente */
     display: grid;
-    grid-template-columns: 28px 1fr auto;
-    align-items: center;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto auto auto;
+    align-items: start;
     gap: 10px;
     
-    /* 🚨 Glassmorphism y Sombra Sutil */
-    background: rgba(15, 20, 30, 0.4); /* Fondo más claro que el body pero semi-transparente */
+    background: rgba(15, 20, 30, 0.4);
     backdrop-filter: blur(4px); 
     -webkit-backdrop-filter: blur(4px);
     
-    border: 1px solid rgba(138, 43, 226, 0.1); /* Borde neón muy sutil */
-    padding: 16px; /* Más padding para que respire */
+    border: 1px solid rgba(138, 43, 226, 0.1);
+    padding: 16px;
     border-radius: 12px;
     
-    /* Mejoramos las transiciones */
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border 0.2s ease-out;
     overflow: hidden;
 }
 
 .item:hover {
-    /* Resaltar al pasar el ratón */
     transform: translateY(-3px); 
-    box-shadow: 0 0 15px rgba(0, 247, 255, 0.2), 0 8px 15px rgba(0, 0, 0, 0.5); /* Neón y sombra */
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.2), 0 8px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Tarea completada: Opacidad y borde verde/apagado */
 .item.done {
     opacity: 0.8;
     border-color: rgba(0, 255, 128, 0.1);
@@ -201,18 +197,74 @@ body {
     opacity: 0.7;
 }
 
-/* Nube/Ícono de Sincronización Pendiente */
+/* OCULTAR CHECKBOX */
+.item input[type="checkbox"],
+.item .check {
+  display: none !important;
+}
+
+/* Número de tarea - primera columna, primera fila */
+.task-number {
+  grid-column: 1;
+  grid-row: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #c7cfdb;
+  border: 1px solid rgba(255,255,255,0.02);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Título - segunda columna, primera fila */
+.item .title {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e7eaee;
+  margin: 0;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Descripción - segunda columna, segunda fila */
+.task-desc {
+  grid-column: 2;
+  grid-row: 2;
+  color: #c7cfdb;
+  opacity: 0.9;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Controles - ambas columnas, tercera fila */
+.item > div:first-child > div:nth-child(2) > div:first-child > div:nth-child(2),
+.task-controls {
+  grid-column: 1 / 3;
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .sync-pending-icon {
     font-size: 1.2em;
-    color: #ffd700; /* Amarillo Neón para advertencia */
-    /* Efecto de Brillo Neón */
+    color: #ffd700;
     text-shadow: 
         0 0 4px rgba(255, 215, 0, 0.8),
         0 0 8px rgba(255, 215, 0, 0.4);
-    animation: pulse 1s infinite alternate; /* Usa la animación que ya definiste */
+    animation: pulse 1s infinite alternate;
 }
 
-/* Estilo de los botones dentro de la tarjeta */
 .item .action-btn {
     background: none;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -341,35 +393,7 @@ body {
   text-shadow: 0 0 5px rgba(0, 247, 255, 0.5);
 }
 
-@keyframes glowBox {
-  from {
-    box-shadow: 0 0 15px #00f7ff, 0 0 30px #8a2be2;
-  }
-  to {
-    box-shadow: 0 0 25px #8a2be2, 0 0 50px #00f7ff;
-  }
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .register-box {
-    padding: 30px 20px;
-  }
-  
-  .register-box h2 {
-    font-size: 20px;
-  }
-  /* === Topbar y logout === */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: rgba(20, 20, 35, 0.9);
-  border-bottom: 1px solid rgba(0, 247, 255, 0.3);
-  box-shadow: 0 0 10px rgba(0, 247, 255, 0.2);
-}
-
+/* === Topbar y logout === */
 .topbar-right {
   display: flex;
   align-items: center;
@@ -442,7 +466,6 @@ body {
   box-shadow: 0 0 10px rgba(0, 247, 255, 0.06);
 }
 
-/* select estilo gamer */
 .status-select,
 .task-status {
   padding: 8px 10px;
@@ -454,7 +477,6 @@ body {
   cursor: pointer;
 }
 
-/* mini badge al lado del checkbox */
 .status-badge-mini {
   margin-top: 8px;
   font-size: 11px;
@@ -470,17 +492,9 @@ body {
   border: 1px solid rgba(255,255,255,0.02);
 }
 
-/* descripción en la tarjeta */
-.task-desc {
-  color: #c7cfdb;
-  opacity: 0.9;
-  margin: 6px 0 0 0;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-/* panel de edición inline */
 .edit-panel {
+  grid-column: 1 / 3;
+  grid-row: 4;
   margin-top: 8px;
   padding: 10px;
   border-radius: 10px;
@@ -511,23 +525,12 @@ body {
   resize: vertical;
 }
 
-/* tarjeta expandida */
-.item {
-  transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
-  overflow: hidden;
-}
-
-.item:hover {
-  transform: translateY(-4px) scale(1.005);
-}
-
 .item.expanded {
   transform: translateY(-6px);
   box-shadow: 0 18px 40px rgba(138,43,226,0.12);
   border: 1px solid rgba(138,43,226,0.18);
 }
 
-/* small card in animation */
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(8px) scale(0.995); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -536,46 +539,6 @@ body {
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* responsive tweaks */
-@media (max-width: 600px) {
-  .add-extended textarea.add-desc {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-  }
-
-  .status-select {
-    width: 100%;
-  }
-
-  .toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .filters {
-    display: flex;
-    gap: 8px;
-  }
-
-  .item {
-    /* En móvil, cambiamos la disposición para que el contenido no se comprima */
-    grid-template-columns: 42px 1fr; /* Icono/Número y luego el contenido */
-    grid-template-rows: auto auto; /* Título/Status arriba, Descripción/Botones abajo */
-    gap: 8px;
-}
-
-/* Ajuste del formulario de agregar tarea en móvil */
-.create-section .add-extended > div {
-    flex-direction: column;
-    align-items: stretch !important;
-}
-
-.create-section .add-extended button {
-    width: 100%;
 }
 
 .controls-section {
@@ -594,33 +557,10 @@ body {
   box-shadow: 0 6px 18px rgba(0,247,255,0.03);
 }
 
-/* task-number */
-.task-number {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #c7cfdb;
-  border: 1px solid rgba(255,255,255,0.02);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-/* ensure tasks-list spacing */
 .tasks-list .list {
   margin-top: 8px;
 }
 
-/* make sure the task cards don't full-width overlap on small screens */
-@media (max-width: 640px) {
-  .controls-section { flex-direction: column; align-items: stretch; }
-  .create-section .add-extended { display:flex; flex-direction:column; gap:10px; }
-}
-
-/* Asegúrate de que esta regla esté en tu archivo CSS principal */
 @keyframes pulse {
     0% {
         opacity: 0.5;
@@ -632,94 +572,148 @@ body {
     }
 }
 
-}
 /* === MOBILE FIXES === */
 @media (max-width: 600px) {
 
     /* --- HEADER --- */
-    .header-container {
+    .topbar {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         width: 100%;
         padding: 12px;
         gap: 10px;
     }
 
-    .header-container h1 {
+    .topbar h1 {
         width: 100%;
-        text-align: left;
-        font-size: 24px;
+        text-align: center;
+        font-size: 20px;
         margin-bottom: 4px;
         line-height: 1.1;
     }
 
-    /* stats debajo del título */
     .stats {
         width: 100%;
-        justify-content: flex-start;
-        font-size: 13px;
+        justify-content: center;
+        font-size: 12px;
         gap: 15px;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
     }
 
-    /* Status + botón salir alineados horizontalmente */
-    .header-controls {
+    .spacer {
+        display: none;
+    }
+
+    /* Fila de controles: estado + botón logout */
+    .topbar > .estado-conexion,
+    .topbar > .btn.danger {
+        margin: 0;
+    }
+
+    .topbar {
+        position: relative;
+    }
+
+    /* Estado conexión a la izquierda */
+    .estado-conexion {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    /* Botón logout a la derecha */
+    .btn.danger {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* --- FORMULARIO CREAR TAREA --- */
+    .create-section .add-extended > div {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .create-section .add-extended button {
+        width: 100%;
+    }
+
+    .add-extended input,
+    .add-extended textarea,
+    .add-extended select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+    }
+
+    /* --- BÚSQUEDA Y FILTROS --- */
+    .controls-section { 
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .search-box .search {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .filters-section {
         width: 100%;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 8px;
     }
-
-    .btn.danger {
-        padding: 6px 10px;
-        font-size: 14px;
-    }
-
 
     /* --- CARDS / ITEMS --- */
     .item {
-        grid-template-columns: 32px 1fr;
-        grid-template-rows: auto auto auto;
-        gap: 6px 10px;
         padding: 14px;
     }
 
-    /* Número o checkbox */
-    .task-number,
-    .item > input[type="checkbox"] {
-        grid-row: span 2;
-        align-self: flex-start;
-    }
-
-    /* Título */
-    .title {
-        grid-column: 2 / 3;
+    .item .title {
         font-size: 15px;
     }
 
-    /* Descripción */
     .task-desc {
-        grid-column: 2 / 3;
         font-size: 13px;
     }
 
-    /* Controles */
-    .task-controls,
-    .item > div:last-child {
-        grid-column: 1 / 3;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 6px;
+    /* Controles apilados verticalmente */
+    .item > div:first-child > div:nth-child(2) > div:first-child > div:nth-child(2),
+    .task-controls {
+        flex-direction: column;
+        width: 100%;
     }
 
-    .task-controls select,
+    .task-status,
     .item .action-btn {
-        flex: 1 1 120px;
-        min-width: calc(50% - 10px);
+        width: 100%;
     }
 
-}
+    /* --- PANEL DE EDICIÓN --- */
+    .edit-panel > div:last-child {
+        flex-direction: column;
+        gap: 8px;
+    }
 
+    .edit-panel input,
+    .edit-panel textarea,
+    .edit-panel select,
+    .edit-panel button {
+        width: 100%;
+    }
 
+    .register-box {
+        padding: 30px 20px;
+    }
+    
+    .register-box h2 {
+        font-size: 20px;
+    }
 }
